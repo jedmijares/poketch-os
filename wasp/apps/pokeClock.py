@@ -17,6 +17,8 @@ class PokeClockApp():
 
     def foreground(self):
         wasp.system.bar.clock = False
+        wasp.system.bar.meter = False
+        wasp.system.bar.notif = False
         self._draw(True)
         wasp.system.request_tick(1000)
 
@@ -40,6 +42,7 @@ class PokeClockApp():
             # wasp.system.bar.draw()
         else:
             now = wasp.system.bar.update()
+            now = wasp.watch.rtc.get_localtime()
             if not now or self._min == now[4]:
                 return
         # month = now[1] - 1

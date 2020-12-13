@@ -8,3 +8,5 @@ attic/
 wasp/boards/*/watch.py
 .idea
 .vscode
+
+*.png~

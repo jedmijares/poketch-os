@@ -8,4 +8,4 @@ To install, you can follow the [wasp-os installation guide](https://wasp-os.read
 
 ![](simImage.png)
 
-Currently, I've only themed the digital watch and stopwatch applications. Now that I've gotten over the initial hurdle of building watch apps and uploading them to the hardware, in the future I'd like to expand on this project and create my own apps in the spirit of those found in the game.
+Currently, I've only themed the digital watch and stopwatch applications. Now that I've gotten over the initial hurdles (compiling apps, displaying images, uploading to the hardware, etc.), in the future I'd like to expand on this project and create my own apps in the spirit of those found in the game.

@@ -30,7 +30,7 @@ submodules :
 	git submodule update --init
 	(cd bootloader; git submodule update --init)
 	(cd micropython/ports/nrf; $(MAKE) submodules)
-	(cd reloader; git submodule update --init)
+	# (cd reloader; git submodule update --init)
 	(cd wasp/modules/bma42x-upy; git submodule update --init)
 
 bootloader: build-$(BOARD_SAFE)

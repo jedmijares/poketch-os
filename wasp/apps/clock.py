@@ -1,106 +1,255 @@
-# SPDX-License-Identifier: LGPL-3.0-or-later
-# Copyright (C) 2020 Daniel Thompson
-
-"""Digital clock
-~~~~~~~~~~~~~~~~
-
-Shows a time (as HH:MM) together with a battery meter and the date.
-"""
-
 import wasp
 
 import icons
-import fonts.clock as digits
+# import fonts.pokeClock as digits
 
-DIGITS = (
-        digits.clock_0, digits.clock_1, digits.clock_2, digits.clock_3,
-        digits.clock_4, digits.clock_5, digits.clock_6, digits.clock_7,
-        digits.clock_8, digits.clock_9
+# 2-bit RLE, generated from ./media/colon.png, 17 bytes
+colon = (
+    b'\x02'
+    b'\x08H'
+    b'@\xde\x7fA\x801\xbf\x01\x7f\x81\xbf\x01\x7fA'
+)
+# 2-bit RLE, generated from ./media/d0.png, 122 bytes
+d0 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc9\x80\xde\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/d1.png, 152 bytes
+d1 = (
+    b'\x02'
+    b' H'
+    b'@\xdeQ\x801\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88X\x88X\x88X\x88X\x88X\x88X\x88'
+    b'X\x88X\x88G'
+)
+# 2-bit RLE, generated from ./media/d2.png, 107 bytes
+d2 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc1\x80\xde\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98\x7f\xd1\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98\x7f\xc1'
+)
+# 2-bit RLE, generated from ./media/d3.png, 107 bytes
+d3 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc1\x80\xde\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98\x7f\xc9\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/d4.png, 137 bytes
+d4 = (
+    b'\x02'
+    b' H'
+    b'@1H\x80\xde\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90\x7f\xc9\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H'
+)
+# 2-bit RLE, generated from ./media/d5.png, 107 bytes
+d5 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc9\x80\xde\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98\x7f\xc1\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/d6.png, 107 bytes
+d6 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc9\x80\xde\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98\x7f\xc9\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/d7.png, 137 bytes
+d7 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc1\x80\xde\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98H'
+    b'\x98H\x98H\x98H'
+)
+# 2-bit RLE, generated from ./media/d8.png, 107 bytes
+d8 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc9\x80\xde\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90\x7f\xd1\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90'
+    b'P\x90P\x90P\x90\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/d9.png, 107 bytes
+d9 = (
+    b'\x02'
+    b' H'
+    b'@1\x7f\xc9\x80\xde\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90P\x90P\x90P\x90P\x90P\x90P'
+    b'\x90P\x90P\x90\x7f\xc9\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98H\x98H\x98H\x98H\x98H\x98'
+    b'H\x98H\x98H\x98\x7f\xc9'
+)
+# 2-bit RLE, generated from ./media/green.png, 232 bytes
+green = (
+    b'\x02'
+    b'\xf0\xf0'
+    b'@\xde\x7f\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff'
+    b'\xff\xff\xff\xff\xa2'
+)
+# 2-bit RLE, generated from ./media/pikachu.png, 180 bytes
+pikachu = (
+    b'\x02'
+    b'<*'
+    b'@\xdeX\x80\xff\x84x\x84x\x86Z\x84X\x86Z\x84'
+    b'Z\x86V\x86Z\x86V\x86Z\x88R\x86\\\x88R\x86'
+    b'^\x88N\x88^\x88N\x88`\x9ab\x9ad\x96f\x96'
+    b'd\x9ab\x9a`\x98B\x82`\x98B\x82`\x8aB\x8c'
+    b'B\x82`\x8aB\x8cB\x82^\x8cB\x86B\x8a\\\x8c'
+    b'B\x86B\x8aB\x88R\x9cB\x82B\x88R\x9cB\x82'
+    b'B\x90H\x8aD\x88B\x86B\x82B\x90H\x8aD\x88'
+    b'B\x86B\x82B\x90H\x8aD\x86B\x82B\x88B\x90'
+    b'H\x8aD\x86B\x82B\x88B\x90F\xa2D\x90F\xa2'
+    b'D\x92B\xa2F\x92B\xa2P\x88B\xa0R\x88B\xa0'
+    b'R\xaaU\xa7V\xa6V\xa6V\xa6W\xa4X\xa3Y\xa2'
+    b'K'
+)
+# 2-bit RLE, generated from ./media/widePikachu.png, 319 bytes
+widePikachu = (
+    b'\x02'
+    b'\xf0?'
+    b'@\xdew\x80\xff\x86\x7f\xab\x86\x7f\xab\x86\x7f\xab\x89g'
+    b'\x86\x7f{\x89g\x86\x7f{\x89g\x86\x7f~\x89a\x89'
+    b'\x7f~\x89a\x89\x7f~\x89a\x89\x7f~\x8c[\x89\x7f'
+    b'\x81\x8c[\x89\x7f\x81\x8c[\x89\x7f\x84\x8cU\x8c\x7f\x84'
+    b'\x8cU\x8c\x7f\x84\x8cU\x8c\x7f\x87\xa7\x7f\x8a\xa7\x7f\x8a'
+    b'\xa7\x7f\x8d\xa1\x7f\x90\xa1\x7f\x90\xa1\x7f\x8d\xa7\x7f\x8a\xa7'
+    b'\x7f\x8a\xa7\x7f\x87\xa4C\x83\x7f\x87\xa4C\x83\x7f\x87\xa4'
+    b'C\x83\x7f\x87\x8fC\x92C\x83\x7f\x87\x8fC\x92C\x83'
+    b'\x7f\x87\x8fC\x92C\x83\x7f\x84\x92C\x89C\x8f\x7f\x81'
+    b'\x92C\x89C\x8f\x7f\x81\x92C\x89C\x8f\x7fZ\x8c['
+    b'\xaaC\x83\x7fZ\x8c[\xaaC\x83\x7fZ\x8c[\xaaC'
+    b'\x83\x7fZ\x98L\x8fF\x8cC\x89C\x83\x7fZ\x98L'
+    b'\x8fF\x8cC\x89C\x83\x7fZ\x98L\x8fF\x8cC\x89'
+    b'C\x83\x7fZ\x98L\x8fF\x89C\x83C\x8c\x7fZ\x98'
+    b'L\x8fF\x89C\x83C\x8c\x7fZ\x98L\x8fF\x89C'
+    b'\x83C\x8c\x7fZ\x98I\xb3\x7f]\x98I\xb3\x7f]\x98'
+    b'I\xb3\x7f]\x9bC\xb3\x7f`\x9bC\xb3\x7f`\x9bC'
+    b'\xb3\x7fo\x8cC\xb0\x7fr\x8cC\xb0\x7fr\x8cC\xb0'
+    b'\x7fr\xbf\x00\x7fv\xbb\x7fv\xbb\x7fP\xbf\xff\xa2h'
+    b'\xb9\x7fx\xb9\x7fP\xbf\xff\xff\xff\xffu'
 )
 
-MONTH = 'JanFebMarAprMayJunJulAugSepOctNovDec'
+DIGITS = (
+        d0, d1, d2, d3,
+        d4, d5, d6, d7,
+        d8, d9
+)
+
+# MONTH = 'JanFebMarAprMayJunJulAugSepOctNovDec'
 
 class ClockApp():
-    """Simple digital clock application.
-
-    .. figure:: res/ClockApp.png
-        :width: 179
-
-        Screenshot of the clock application
-    """
     NAME = 'Clock'
     ICON = icons.clock
 
     def foreground(self):
-        """Activate the application.
-
-        Configure the status bar, redraw the display and request a periodic
-        tick callback every second.
-        """
         wasp.system.bar.clock = False
+        wasp.system.bar.meter = False
+        wasp.system.bar.notif = False
         self._draw(True)
         wasp.system.request_tick(1000)
 
     def sleep(self):
-        """Prepare to enter the low power mode.
-
-        :returns: True, which tells the system manager not to automatically
-                  switch to the default application before sleeping.
-        """
         return True
 
     def wake(self):
-        """Return from low power mode.
-
-        Time will have changes whilst we have been asleep so we must
-        udpate the display (but there is no need for a full redraw because
-        the display RAM is preserved during a sleep.
-        """
         self._draw()
 
     def tick(self, ticks):
-        """Periodic callback to update the display."""
         self._draw()
 
     def _draw(self, redraw=False):
-        """Draw or lazily update the display.
-
-        The updates are as lazy by default and avoid spending time redrawing
-        if the time on display has not changed. However if redraw is set to
-        True then a full redraw is be performed.
-        """
         draw = wasp.watch.drawable
-
+        draw.set_color(0x3AC7, 0x6D4D) # dark and light green
         if redraw:
             now = wasp.watch.rtc.get_localtime()
-
-            # Clear the display and draw that static parts of the watch face
-            draw.fill()
-            draw.rleblit(digits.clock_colon, pos=(2*48, 80), fg=0xb5b6)
-
-            # Redraw the status bar
-            wasp.system.bar.draw()
+            # draw.fill()
+            draw.blit(green, x = 0, y = 0)
+            draw.blit(colon, x=116, y=80)
+            draw.blit(widePikachu, x = 0, y = 177)
+            # wasp.system.bar.draw()
         else:
-            # The update is doubly lazy... we update the status bar and if
-            # the status bus update reports a change in the time of day 
-            # then we compare the minute on display to make sure we 
-            # only update the main clock once per minute.
-            now = wasp.system.bar.update()
+            # now = wasp.system.bar.update()
+            now = wasp.watch.rtc.get_localtime()
             if not now or self._min == now[4]:
-                # Skip the update
                 return
-
-        # Format the month as text
-        month = now[1] - 1
-        month = MONTH[month*3:(month+1)*3]
-
-        # Draw the changeable parts of the watch face
-        draw.rleblit(DIGITS[now[4]  % 10], pos=(4*48, 80))
-        draw.rleblit(DIGITS[now[4] // 10], pos=(3*48, 80), fg=0xbdb6)
-        draw.rleblit(DIGITS[now[3]  % 10], pos=(1*48, 80))
-        draw.rleblit(DIGITS[now[3] // 10], pos=(0*48, 80), fg=0xbdb6)
-        draw.string('{} {} {}'.format(now[2], month, now[0]),
-                0, 180, width=240)
-
-        # Record the minute that is currently being displayed
+        # month = now[1] - 1
+        # month = MONTH[month*3:(month+1)*3]
+        draw.blit(DIGITS[now[4]  % 10], x = 4*48, y = 80)
+        draw.blit(DIGITS[now[4] // 10], x = 3*48, y = 80)
+        draw.blit(DIGITS[now[3]  % 10], x = 2*48 - 32, y = 80)
+        draw.blit(DIGITS[now[3] // 10], x = 1*48 - 32, y = 80)
+        # draw.string('green?', 0, 108, width=240)
+        # draw.string('{} {} {}'.format(now[2], month, now[0]),
+                # 0, 180, width=240)
         self._min = now[4]
